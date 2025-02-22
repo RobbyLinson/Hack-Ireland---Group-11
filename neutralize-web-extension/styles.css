@@ -25,3 +25,29 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+.bias-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.progress-container {
+    width: 100px;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+#left-bar { background-color: var(--accent-blue); }
+#center-bar { background-color: #9465d1; }
+#right-bar { background-color: var(--accent-red); }
+

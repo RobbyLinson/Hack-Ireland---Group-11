@@ -9,7 +9,23 @@
 <body>
     <h2>Bias Detector</h2>
     <button id="analyze-btn">Analyze Page</button>
-    <p id="result"></p>
+    <div id="bias-results">
+        <div class="bias-bar">
+            <span>Left:</span>
+            <div class="progress-container"><div id="left-bar" class="progress-bar"></div></div>
+            <span id="left-score"></span>
+        </div>
+        <div class="bias-bar">
+            <span>Center:</span>
+            <div class="progress-container"><div id="center-bar" class="progress-bar"></div></div>
+            <span id="center-score"></span>
+        </div>
+        <div class="bias-bar">
+            <span>Right:</span>
+            <div class="progress-container"><div id="right-bar" class="progress-bar"></div></div>
+            <span id="right-score"></span>
+        </div>
+    </div>
     <script src="popup.js"></script>
 </body>
 </html>
