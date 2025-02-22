@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     chrome.storage.local.get('biasAnalysis', (result) => {
         if (result.biasAnalysis) {
             console.log("Bias Analysis", result.biasAnalysis);
@@ -55,6 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
                 const responseData = await response.json();
                 console.log('API Response:', responseData);
+
+                if (responseData.explanation) {
+                    console.log("Response Data: ", responseData.explanation)
+                    await chrome.storage.local.set({ explanation: responseData.explanation });
+
+                    // Open the explanation.html page in a new tab
+                    chrome.tabs.create({ url: chrome.runtime.getURL('explanation.html') });
+                } else {
+                    console.error('No explanation found in the API response.');
+                }
             } else {
                 console.error('No bias analysis data found.');
             }
