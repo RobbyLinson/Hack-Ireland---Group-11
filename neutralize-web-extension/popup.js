@@ -1,5 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Retrieve the bias analysis data from storage
+    chrome.storage.local.get(['ScrapedText', 'biasAnalysis'], (result) => {
+        if (result.ScrapedText && result.biasAnalysis) {
+            console.log("ScrapedText:", result.ScrapedText);
+            console.log("Bias Analysis:", result.biasAnalysis);
+
+            // Store ScrapedText in a variable
+            const scrapedText = result.ScrapedText;  // Fix here
+
+            console.log("Claimed Text Data: ", scrapedText); // Now defined
+            console.log("Claimed Bias Data: ", result.biasAnalysis.bias_analysis);
+        } else {
+            console.log("Required data not found in storage.");
+        }
+    });
+
+
     chrome.storage.local.get('biasAnalysis', (result) => {
         if (result.biasAnalysis) {
             console.log("Bias Analysis", result.biasAnalysis);
@@ -9,20 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     document.getElementById("button1").addEventListener("click", async () => {
-        console.log("Button 1 Pressed")
+        console.log("Button 1 Pressed");
         try {
-            // Retrieve the bias analysis data from storage
-            const result = await chrome.storage.local.get('biasAnalysis');
-            if (result.biasAnalysis) {
+            const result = await chrome.storage.local.get(['ScrapedText', 'biasAnalysis']);
+            if (result.ScrapedText && result.biasAnalysis) {
                 const biasData = result.biasAnalysis;
-
-                // Construct the payload
+                const scrapedText = result.ScrapedText; // Correct retrieval
+    
+                console.log("All Bias Data: ", biasData);
+                console.log("Claimed Text Data: ", scrapedText); // Fixed usage
+                console.log("Claimed Bias Data: ", biasData.bias_analysis);
+    
                 const payload = {
-                    text: biasData.text, // Ensure 'text' is stored in biasAnalysis
+                    text: scrapedText, // Use the correct variable
                     bias_level: biasData.bias_analysis
                 };
-
-                // Make the POST request
+    
                 const response = await fetch('https://0641-89-101-154-45.ngrok-free.app/api/gpt_analyze/', {
                     method: 'POST',
                     headers: {
@@ -30,14 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify(payload)
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-
+    
                 const responseData = await response.json();
                 console.log('API Response:', responseData);
-
             } else {
                 console.error('No bias analysis data found.');
             }
@@ -45,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error during API call:', error);
         }
     });
+    
 
 
     document.getElementById("button2").addEventListener("click", () => {
@@ -60,9 +78,6 @@ function updatePopupContent(biasData) {
     function getValidPercentage(value) {
         return (typeof value === 'number' && !isNaN(value)) ? (value * 100).toFixed(0) + "%" : "0.00%";
     }
-    console.log("Bias Data: ", biasData)
-    console.log("Bias Data: ", biasData.bias_analysis)
-    console.log("Bias Data: ", biasData.Middle)
     // Update text content with validated values
     document.getElementById("center-score").textContent = getValidPercentage(biasData.bias_analysis.Middle);
     document.getElementById("left-score").textContent = getValidPercentage(biasData.bias_analysis.Left);
