@@ -1,6 +1,7 @@
 (() => {
     window.addEventListener("load", () => {
-        let pageUrl = window.location.href; 
-        chrome.runtime.sendMessage({ action: "sendURL", url: pageUrl });
+        let url = window.location.href;
+        console.log("URL Acquired: ", url)
+        chrome.runtime.sendMessage({ action: "sendURL", url });
     });
 })();
