@@ -1,47 +1,42 @@
 :root {
-    --primary-purple: #512888; /* Main color representing neutrality */
-    --accent-red: #B11226;     /* Accent color symbolizing one end of the spectrum */
-    --accent-blue: #062A77;    /* Accent color symbolizing the other end */
-    --text-off-white: #F2F2F2; /* Off-white color for text */
-  }
+    --primary-purple: #512888;
+    --accent-red: #B11226;
+    --accent-blue: #062A77;
+    --text-off-white: #F2F2F2;
+}
+
 body {
-    width: 200px;
-    font-family: Arial, sans-serif;
+    width: 220px;
+    font-family: 'Merriweather', serif;
     text-align: center;
     margin: 0;
-    padding: 0;
-    overflow: hidden;
+    padding: 10px;
     background-color: var(--primary-purple);
     color: var(--text-off-white);
 }
-button {
-    background-color: var(--accent-blue);
-    color: var(--text-off-white);
-    border: none;
-    padding: 10px;
-    cursor: pointer;
+
+h2 {
+    margin-bottom: 20px;
 }
 
-button:hover {
-    background-color: #0056b3;
+.bias-container {
+    margin-bottom: 15px;
 }
 
-.bias-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.progress-container {
-    width: 100px;
-    height: 10px;
-    background-color: #ddd;
-    border-radius: 5px;
-    overflow: hidden;
+.bias-label {
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .progress-bar {
+    width: 100%;
+    height: 15px;
+    background-color: #ddd;
+    border-radius: 7.5px;
+    overflow: hidden;
+}
+
+.progress-fill {
     height: 100%;
     width: 0%;
     transition: width 0.5s ease-in-out;
@@ -50,4 +45,3 @@ button:hover {
 #left-bar { background-color: var(--accent-blue); }
 #center-bar { background-color: #9465d1; }
 #right-bar { background-color: var(--accent-red); }
-

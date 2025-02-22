@@ -29,15 +29,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .then(res => res.json())
             .then(response => {
                 console.log("Response from Next API:", response); // Log the response from the Next API
-                chrome.runtime.sendMessage({
-                    action: "biasAnalysis",
-                    data: analysis
-                });
+                chrome.storage.local.set({ biasAnalysis: response }, () => {
+                    console.log("Bias analysis data saved.");            
+                }).catch(error => console.error("Error sending data to biasAnal:", error));
             })
             .catch(error => console.error("Error sending data to Next API:", error));
 
         })
         .catch(error => console.error("Error fetching scraped data:", error));
-        
     }
 });
