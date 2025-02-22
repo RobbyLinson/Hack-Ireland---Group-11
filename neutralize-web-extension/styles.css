@@ -3,6 +3,7 @@
     --accent-red: #B11226;
     --accent-blue: #062A77;
     --text-off-white: #F2F2F2;
+    --secondary-purple:#9465d1;
 }
 
 body {
@@ -43,5 +44,27 @@ h2 {
 }
 
 #left-bar { background-color: var(--accent-blue); }
-#center-bar { background-color: #9465d1; }
+#center-bar { background-color: var(--secondary-purple); }
 #right-bar { background-color: var(--accent-red); }
+
+.button-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.button-container button {
+    padding: 8px 15px;
+    font-family: 'Merriweather', serif;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--text-off-white);
+    color: var(--secondary-purple);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: var(--secondary-purple);
+    color: var(--text-off-white);
+}
