@@ -1,0 +1,27 @@
+:root {
+    --primary-purple: #512888; /* Main color representing neutrality */
+    --accent-red: #B11226;     /* Accent color symbolizing one end of the spectrum */
+    --accent-blue: #062A77;    /* Accent color symbolizing the other end */
+    --text-off-white: #F2F2F2; /* Off-white color for text */
+  }
+body {
+    width: 200px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--primary-purple);
+    color: var(--text-off-white);
+}
+button {
+    background-color: var(--accent-blue);
+    color: var(--text-off-white);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}

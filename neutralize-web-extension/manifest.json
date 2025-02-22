@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "Bias Detector",
+    "version": "1.0",
+    "description": "Detects bias in news articles.",
+    "permissions": ["activeTab", "storage", "scripting"],
+    "host_permissions": ["*://*/*"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icons/faviconTiny-16.png",
+        "48": "icons/faviconTiny-48.png",
+        "128": "icons/favicon-128.png"
+      }
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*/*"],
+        "js": ["content.js"]
+      }
+    ]
+  }
+  
