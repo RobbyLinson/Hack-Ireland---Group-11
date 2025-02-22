@@ -1,29 +1,28 @@
+<!-- popup.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bias Detector</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Bias Analysis</title>
+    <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
-    <h2>Bias Detector</h2>
-    <button id="analyze-btn">Analyze Page</button>
-    <div id="bias-results">
-        <div class="bias-bar">
-            <span>Left:</span>
-            <div class="progress-container"><div id="left-bar" class="progress-bar"></div></div>
-            <span id="left-score"></span>
+    <h2>Bias Analysis Results</h2>
+    <div class="bias-container">
+        <div class="bias-label">Center: <span id="center-score">0%</span></div>
+        <div class="progress-bar">
+            <div id="center-bar" class="progress-fill center"></div>
         </div>
-        <div class="bias-bar">
-            <span>Center:</span>
-            <div class="progress-container"><div id="center-bar" class="progress-bar"></div></div>
-            <span id="center-score"></span>
+    </div>
+    <div class="bias-container">
+        <div class="bias-label">Left: <span id="left-score">0%</span></div>
+        <div class="progress-bar">
+            <div id="left-bar" class="progress-fill left"></div>
         </div>
-        <div class="bias-bar">
-            <span>Right:</span>
-            <div class="progress-container"><div id="right-bar" class="progress-bar"></div></div>
-            <span id="right-score"></span>
+    </div>
+    <div class="bias-container">
+        <div class="bias-label">Right: <span id="right-score">0%</span></div>
+        <div class="progress-bar">
+            <div id="right-bar" class="progress-fill right"></div>
         </div>
     </div>
     <script src="popup.js"></script>

@@ -7,6 +7,7 @@ import json
 import re
 
 app = Flask(__name__)
+CORS(app)
 
 def fetch_webpage(url):
     headers = {
