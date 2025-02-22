@@ -39,6 +39,12 @@ def parse_with_readability(html_content):
     clean_text = "\n".join(clean_lines)
     clean_text = re.sub(r'\s{2,}', ' ', clean_text)
     
+    # Remove non-ASCII characters (applied to clean_text)
+    clean_text = re.sub(r'[^\x00-\x7F]+', '', clean_text)
+    
+    # Remove all newline characters by replacing them with a space
+    clean_text = clean_text.replace('\n', ' ')
+    
     return clean_text, title
 
 @app.route('/scrape', methods=['POST'])
