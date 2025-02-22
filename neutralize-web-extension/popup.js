@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Bias Analysis:", result.biasAnalysis);
 
             // Store ScrapedText in a variable
-            const scrapedText = result.ScrapedText;  // Fix here
+            const scrapedText = result.ScrapedText.text;  // Fix here
 
             console.log("Claimed Text Data: ", scrapedText); // Now defined
             console.log("Claimed Bias Data: ", result.biasAnalysis.bias_analysis);
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await chrome.storage.local.get(['ScrapedText', 'biasAnalysis']);
             if (result.ScrapedText && result.biasAnalysis) {
                 const biasData = result.biasAnalysis;
-                const scrapedText = result.ScrapedText; // Correct retrieval
+                const scrapedText = result.ScrapedText.text; // Correct retrieval
     
                 console.log("All Bias Data: ", biasData);
                 console.log("Claimed Text Data: ", scrapedText); // Fixed usage
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bias_level: biasData.bias_analysis
                 };
     
-                const response = await fetch('https://0641-89-101-154-45.ngrok-free.app/api/gpt_analyze/', {
+                const response = await fetch('https://driven-gnu-ample.ngrok-free.app/api/gpt_analyze/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -74,10 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
 
-    document.getElementById("button2").addEventListener("click", () => {
-        console.log("Button 2 clicked");
-        // Add button 2 functionality here
+    document.getElementById("button2").addEventListener("click", async () => {
+        console.log("Button 2 Pressed");
+        chrome.tabs.create({ url: chrome.runtime.getURL('raw.html') });
     });
+    
 });
 
 

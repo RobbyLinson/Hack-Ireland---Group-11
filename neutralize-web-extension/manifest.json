@@ -24,7 +24,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["explanation.html", "explanation.js", "styles.css", "libs/marked.min.js"],
+        "resources": ["explanation.html", "explanation.js", "raw.html", "raw.js", "styles.css", "libs/marked.min.js"],
         "matches": ["<all_urls>"]
       }
     ],

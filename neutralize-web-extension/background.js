@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
 
             // Store the scraped text
-            chrome.storage.local.set({ ScrapedText: data.text }, () => {
+            chrome.storage.local.set({ ScrapedText: data }, () => {
                 if (chrome.runtime.lastError) {
                     console.error("Error setting ScrapedText:", chrome.runtime.lastError);
                     return;
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 console.log("Scraped text saved.");
 
                 // Proceed to send the text to the Next API
-                const nextApiUrl = "https://0641-89-101-154-45.ngrok-free.app/api/analyze/";
+                const nextApiUrl = "https://driven-gnu-ample.ngrok-free.app/api/analyze/";
                 console.log("Sending data to Next API at:", nextApiUrl);
                 fetch(nextApiUrl, {
                     method: "POST",
