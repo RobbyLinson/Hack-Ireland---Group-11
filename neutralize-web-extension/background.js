@@ -10,9 +10,10 @@
 //         sendResponse({ bias: biasData });
 //     }
 // });
+let globalUrl
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "sendURL") {
-        fetch("https://your-backend-api.com/analyze-url", {  // Replace with your actual backend URL
+        fetch("http://127.0.0.1:5000/scrape", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,7 +21,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             body: JSON.stringify({ url: message.url })
         })
         .then(response => response.json())
-        .then(data => console.log("Server Response:", data))
-        .catch(error => console.error("Error sending URL:", error));
+        .then(data => {
+            chrome.storage.local.set({ scrapedData: data });
+        })
+        .catch(error => console.error("Error fetching bias data:", error));
+        globalUrl = url
     }
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "requestBiasData") {
+        chrome.storage.local.get("scrapedData", (data) => {
+            sendResponse(data.scrapedData || { error: globalUrl });
+        });
+        return true; // Required to use `sendResponse` asynchronously
+    }
+});
+
