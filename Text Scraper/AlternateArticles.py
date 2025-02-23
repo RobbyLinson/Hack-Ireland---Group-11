@@ -1,8 +1,5 @@
 import requests
 from bs4 import BeautifulSoup as bs
-import readability
-from readability import Document
-import eventregistry
 import nltk
 nltk.download('stopwords')
 from nltk.corpus import stopwords
