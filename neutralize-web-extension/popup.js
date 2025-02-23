@@ -104,17 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     // Assuming the API returns a JSON object with a 'neutralized_url' field
-                    console.log("Button Data: ", data.details)
-                    if (data.details) {
+                    console.log("Button Data: ", data.related_article)
+                    if (data.related_article) {
                         // Update the button's href attribute
-                        button.href = "https://" + data.details;
+                        button.href = data.related_article;
                         // Update button appearance
                         button.classList.remove('loading');
                         button.classList.add('active');
                         button.textContent = "Neutralize Me";
                     } else {
                         // Handle case where 'neutralized_url' is not present in the response
-                        button.textContent = "Error: Invalid response";
+                        button.textContent = data.error;
                         button.classList.remove('loading');
                         button.classList.add('error');
                     }
