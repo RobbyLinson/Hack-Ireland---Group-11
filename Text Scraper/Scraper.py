@@ -9,269 +9,135 @@ import nltk
 from nltk.corpus import stopwords
 import pandas as pd
 from GoogleNews import GoogleNews
-from newspaper import Article
+import time
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Download stopwords
+# Download stopwords (ensure this is done beforehand to avoid runtime issues)
 nltk.download('stopwords')
-new_key = "ada52c3e075747aa88ba0c5cca40d2da"
 
+# Function to fetch webpage content
 def fetch_webpage(url):
-    headers = {
-        "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                       "AppleWebKit/537.36 (KHTML, like Gecko) "
-                       "Chrome/90.0.4430.93 Safari/537.36")
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/90.0.4430.93 Safari/537.36"}
     try:
+        print(f"Fetching URL: {url}")
         response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()  # Raises HTTPError for bad responses
+        response.raise_for_status()
+        print("Successfully fetched webpage.")
         return response.text
     except requests.exceptions.RequestException as e:
         print(f"Error fetching URL: {e}")
         return None
 
+# Function to parse content using Readability
 def parse_with_readability(html_content):
-    # Use readability to extract the main content and title
     doc = Document(html_content)
-    summary_html = doc.summary()
     title = doc.title()
-    
-    # Parse the summary HTML using BeautifulSoup
-    soup = BeautifulSoup(summary_html, "lxml")
-    text = soup.get_text(separator="\n")
-    
-    # Clean up the extracted text:
-    lines = [line.strip() for line in text.splitlines()]
-    clean_lines = [line for line in lines if line]
-    clean_text = "\n".join(clean_lines)
-    clean_text = re.sub(r'\s{2,}', ' ', clean_text)
-    
-    # Remove non-ASCII characters (applied to clean_text)
-    clean_text = re.sub(r'[^\x00-\x7F]+', '', clean_text)
-    
-    # Remove all newline characters by replacing them with a space
-    clean_text = clean_text.replace('\n', ' ')
-    
-    return clean_text, title
+    soup = BeautifulSoup(doc.summary(), "lxml")
+    text = soup.get_text(separator=" ").strip()
+    text = re.sub(r'\s{2,}', ' ', text)  # Remove excessive whitespace
+    text = re.sub(r'[^\x00-\x7F]+', '', text)  # Remove non-ASCII characters
+    print(f"Extracted title: {title}")
+    return text, title
 
+# API endpoint to scrape an article
 @app.route('/scrape', methods=['POST'])
 def scrape():
-    # Get JSON data from the POST request
     data = request.get_json()
     url = data.get("url")
     if not url:
         return jsonify({"error": "Missing URL parameter"}), 400
 
-    # Fetch the webpage content
+    print(f"Scraping article: {url}")
     html_content = fetch_webpage(url)
     if not html_content:
         return jsonify({"error": "Failed to fetch webpage content"}), 500
 
-    # Parse the webpage content using readability and BeautifulSoup
     parsed_text, title = parse_with_readability(html_content)
-
-    # Prepare the result dictionary
-    result = {
-        "url": url,
-        "title": title,
-        "text": parsed_text
-    }
-
-    # Save the result to a JSON file
-    try:
-        with open("scraped_result.json", "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=4)
-    except Exception as e:
-        print(f"Error writing JSON to file: {e}")
-
-    # Return the result as a JSON response
+    result = {"url": url, "title": title, "text": parsed_text}
+    print(f"Scrape result: {title}")
     return jsonify(result)
 
+# Function to process sentiment from API response
+def sentiment_processor(sentiment_dict):
+    return max(sentiment_dict, key=sentiment_dict.get)
+
+# Function to extract keywords from an article title
+def keyword_finder(title):
+    stop_words = set(stopwords.words('english'))
+    keywords = [word for word in title.split() if word.lower() not in stop_words]
+    print(f"Extracted keywords: {keywords}")
+    return keywords[:-3]  # Exclude last 3 words to focus on main topic
+
+# Function to search for related articles using Google News
+def search_articles(keywords, max_articles=10):
+    results = []
+    for kw in keywords:
+        print(f"Searching for articles related to: {kw}")
+        googlenews = GoogleNews()
+        googlenews.search(kw)
+        time.sleep(2)
+        articles = googlenews.result()[:max_articles]  # Limit the results to max_articles
+        print(f"Found {len(articles)} articles for {kw}")
+        results.extend([res['link'] for res in articles if 'link' in res])
+    return results
+
+# API endpoint to find opposing articles
 @app.route("/article_finder", methods=["POST"])
-def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
-    ##################### Mini helper functions ############################
-    def find_article_title(json_thing):
-        dic = dict(json_thing)
-        title = dic["title"]
-        return title
-    
-    # Sentiment processor
-    def sentiment_processor(dic):
-        # Returning the side that's highest
-        return max(dic, key=dic.get)
-    
-    # Finds keywords init
-    def keyword_finder(article_title):
-        # Extracting stop words
-        stop_words = set(stopwords.words('english'))
-        # Tokenizing the article title
-        article_tokens = article_title.split()
-        # Filtering stop words
-        keywords = [word for word in article_tokens if word.lower() not in stop_words]
-        keywords = keywords[:-3]
-        return keywords
-    
-    # # Searching for articles init
-    # def search_article(keyword, api_key):
-    #     url = 'https://newsapi.org/v2/top-headlines'
-    #     # Define parameters for the request (e.g., get US headlines)    
-    #     params = {
-    #         'qInTitle': keyword,
-    #         'pageSize': 10,  # Limit the number of articles returned
-    #         'apiKey': api_key
-    #     }
-    #     # Make the GET request to the News API
-        
-    #     response = requests.get(url, params=params)
-    #     if response.status_code == 200:
-    #         data = response.json()
-    #         return data.get('articles', [])
-    #     else:
-    #         print(f"Error fetching news for keyword '{keyword}':", response.status_code)
-    #         return []
-
-    # Keyword search
-    def search_articles2(keywords):
-        all_results = []
-        for kw in keywords:
-            googlenews = GoogleNews()
-            googlenews.search(kw)
-            results = googlenews.result()
-            # Optionally, tag each result with its query
-            for res in results:
-                res['query'] = kw
-            all_results.extend(results)
-        return df["link"]
-        
-
-    ####################### Endpoints #####################
-    scrape_endpoint = "http://localhost:5000/scrape"
-    nlp_endpoint = "https://popular-strongly-lemur.ngrok-free.app/api/analyze/"
-    
-    # Looking for current article url
+def article_finder():
     data = request.get_json()
     original_article_url = data.get("url")
     if not original_article_url:
         return jsonify({"error": "No URL provided"}), 400
 
-    print(f"Processing URL: {original_article_url}")
+    print(f"Finding opposing articles for: {original_article_url}")
+    scrape_response = requests.post("http://localhost:5000/scrape", json={"url": original_article_url})
+    if scrape_response.status_code != 200:
+        return jsonify({"error": "Failed to scrape the article"}), 500
     
-    payload = {"url": original_article_url}
-
-    # Further processing can be added here
-    og_scrape_response = requests.post(scrape_endpoint, json=payload)
-    if og_scrape_response.status_code == 200:
-
-        og_scrape_payload = og_scrape_response.json()
-        og_sentiment_response = requests.post(nlp_endpoint, json=og_scrape_payload)
-
-        if og_sentiment_response.status_code == 200:
-
-            og_sentiment_payload = og_sentiment_response.json()
-
-    else:
-        print("ERROR")
+    scraped_data = scrape_response.json()
+    title = scraped_data.get("title")
     
-    # Extracting key info
-    current_article_title_raw = find_article_title(og_scrape_payload)
-    current_article_sentiment = sentiment_processor(og_sentiment_payload['bias_analysis'])
-    print(f"############ {current_article_title_raw} ############")
-    print(f"$$$$$$$$$$$$ {current_article_sentiment} $$$$$$$$$$$$")
-
-    # Storage
-    opp_articles = []
-    opp_articles_score = dict({"url":[], "Score":[], "Lean":[]})
-
-    # Isolating the keywords
-    keywords = keyword_finder(current_article_title_raw)
-    print(f"Isolated keywords from title: {keywords}")
-    print()
-
-    matching_articles = search_articles2(keywords)
+    nlp_response = requests.post("https://popular-strongly-lemur.ngrok-free.app/api/analyze/", json=scraped_data)
+    if nlp_response.status_code != 200:
+        return jsonify({"error": "Failed to analyze sentiment"}), 500
     
+    sentiment_data = nlp_response.json()
+    article_sentiment = sentiment_processor(sentiment_data['bias_analysis'])
+    
+    keywords = keyword_finder(title)
+    matching_articles = search_articles(keywords)
+    
+    opposing_articles = {"url": [], "Score": [], "Lean": []}
+
     for article_url in matching_articles:
-
-        payload = {"url": article_url}
-        scrape_response = requests.post(scrape_endpoint, json=payload)
-        if scrape_response.status_code == 200:
-
-            print(f"Searched article title: {scrape_response.json()['title']}")
-
-            nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
-
-            if nlp_response.status_code == 200:
-
-                nlp_sentiment = nlp_response.json()
-                opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
-
-            else:
-                print(f"NLP API request error: {nlp_response.status_code}")
-        else:
-            print(f"Scraping request error: {scrape_response.status_code}")
-
-        print()
-
-        if current_article_sentiment != opp_article_sentiment:
-            print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
-            opp_articles.append(article)
-            opp_articles_score["url"].append(url)
-            opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
-            opp_articles_score["Lean"].append(opp_article_sentiment)
-
-    # for keyword in keywords:
-
-    #     print(f"Searching articles for: {keyword}")
-    #     articles = search_article(keyword, api_key)
-
-    #     for article in articles:
-    #         url = article.get("url")
-    #         if url:
-
-    #             # Making json dict
-    #             article_search_payload = {"url": url}
-
-    #             # Sending the url to scraper
-    #             scrape_response = requests.post(scrape_endpoint, json=article_search_payload)
-    #             if scrape_response.status_code == 200:
-
-    #                 print(f"Searched article title: {scrape_response.json()['title']}")
-
-    #                 nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
-
-    #                 if nlp_response.status_code == 200:
-
-    #                     nlp_sentiment = nlp_response.json()
-    #                     opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
-
-    #                 else:
-    #                     print(f"NLP API request error: {nlp_response.status_code}")
-
-    #             else:
-    #                 print(f"Scraping request error: {scrape_response.status_code}")
-
-
-    #             print()
-
-    #             if current_article_sentiment != opp_article_sentiment:
-    #                 print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
-    #                 opp_articles.append(article)
-    #                 opp_articles_score["url"].append(url)
-    #                 opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
-    #                 opp_articles_score["Lean"].append(opp_article_sentiment)
+        print(f"Processing article: {article_url}")
+        scrape_response = requests.post("http://localhost:5000/scrape", json={"url": article_url})
+        if scrape_response.status_code != 200:
+            print(f"Failed to scrape: {article_url}")
+            continue
         
-    df = pd.DataFrame(opp_articles_score)
-    df_sorted = df.sort_values(by="Score", ascending=False).reset_index(drop=True)
-    final = df_sorted.iloc[0].to_dict()
+        article_data = scrape_response.json()
+        nlp_response = requests.post("https://popular-strongly-lemur.ngrok-free.app/api/analyze/", json=article_data)
+        if nlp_response.status_code != 200:
+            print(f"Failed to analyze sentiment for: {article_url}")
+            continue
+        
+        article_sentiment_data = nlp_response.json()
+        opposing_sentiment = sentiment_processor(article_sentiment_data['bias_analysis'])
+        
+        if article_sentiment != opposing_sentiment:
+            print(f"Opposing sentiment found for {article_url}")
+            opposing_articles["url"].append(article_url)
+            opposing_articles["Score"].append(article_sentiment_data["bias_analysis"][opposing_sentiment])
+            opposing_articles["Lean"].append(opposing_sentiment)
     
-    print("##############################")
-    print(df_sorted)
-    print(final)
-
-
-    return jsonify({"message": "Success", "details": final}), 200
+    df = pd.DataFrame(opposing_articles).sort_values(by="Score", ascending=False).reset_index(drop=True)
+    best_match = df.iloc[0].to_dict() if not df.empty else {}
+    print("Completed analysis.")
+    return jsonify({"message": "Success", "details": best_match}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
