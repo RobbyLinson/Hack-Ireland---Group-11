@@ -123,22 +123,22 @@ def article_finder():
     article_sentiment = sentiment_processor(sentiment_data['bias_analysis'])
     
     keywords = keyword_finder(title)
-    matching_articles = search_articles(keywords, 3)
+    matching_articles = search_articles(keywords, 5)
     print(f"Length: {len(matching_articles)}")
     
     opposing_articles = {"url": [], "Score": [], "Lean": []}
 
     for article_url in matching_articles:
-        print(f"Processing article: {article_url}")
+        print(f"Processing article: {article_url['title']}")
         scrape_response = requests.post("http://localhost:5000/scrape", json={"url": article_url['url']})
         if scrape_response.status_code != 200:
-            print(f"Failed to scrape: {article_url}")
+            print(f"Failed to scrape: {article_url['title']}")
             continue
         
         article_data = scrape_response.json()
         nlp_response = requests.post("https://popular-strongly-lemur.ngrok-free.app/api/analyze/", json=article_data)
         if nlp_response.status_code != 200:
-            print(f"Failed to analyze sentiment for: {article_url}")
+            print(f"Failed to analyze sentiment for: {article_url['title']}")
             continue
         
         article_sentiment_data = nlp_response.json()
@@ -149,9 +149,11 @@ def article_finder():
             opposing_articles["url"].append(article_url['url'])
             opposing_articles["Score"].append(article_sentiment_data["bias_analysis"][opposing_sentiment])
             opposing_articles["Lean"].append(opposing_sentiment)
+        else:
+            print(f"Oppsing sentmimment not found for {article_url['url']}")
     
     df = pd.DataFrame(opposing_articles).sort_values(by="Score", ascending=False).reset_index(drop=True)
-    best_match = df.iloc[0].to_dict() if not df.empty else {}
+    best_match = df.iloc[0].to_dict() if not df.empty else {"emergency_url":"https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"}
     print("Completed analysis.")
     return jsonify({"message": "Success", "details": best_match}), 200
 
