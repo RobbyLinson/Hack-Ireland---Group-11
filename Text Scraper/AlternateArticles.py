@@ -78,12 +78,12 @@ def SearchArticle(keyword, api_key):
 		return []
 	
 # Main function
-def NewsArticleFinder(api_key, stopwords, scraped_payload, sentiment_payload, og_article_url):
+def NewsArticleFinder(stopwords, scraped_payload, sentiment_payload, og_article_url,api_key=API_KEY):
     
     # Important endpoints to access our tools
     scrape_endpoint = "http://localhost:5000/scrape"
     nlp_endpoint = "https://driven-gnu-ample.ngrok-free.app/api/analyze/"
-    og_article_url = "https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"
+    # og_article_url = "https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"
 
     # Scraping the original article
     payload_thing = {"url": og_article_url}
@@ -105,9 +105,13 @@ def NewsArticleFinder(api_key, stopwords, scraped_payload, sentiment_payload, og
     print("#############")
     print(current_article_title_raw)
     print("################")
-    current_article_sentiment = SentimentProcessor(og_sentiment_payload)
+    # using pre loaded sentiment for testing while api is down
+    # current_article_sentiment = SentimentProcessor(og_sentiment_payload)
+    current_article_sentiment = SentimentProcessor(sentiment_payload)
+    print
 
     # Printing the article stuff
+    print("#########")
     print(f"Current article sentiment: {current_article_sentiment}")
     print(f"Current article title: {current_article_title_raw}")
     print()
