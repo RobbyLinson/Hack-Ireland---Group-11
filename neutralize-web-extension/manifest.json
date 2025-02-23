@@ -3,7 +3,7 @@
     "name": "Bias Detector",
     "version": "1.0",
     "description": "Detects bias in news articles.",
-    "permissions": ["activeTab", "storage", "scripting"],
+    "permissions": ["activeTab", "storage", "scripting", "tabs"],
     "host_permissions": ["*://*/*"],
     "background": {
       "service_worker": "background.js"
@@ -21,6 +21,15 @@
         "matches": ["*://*/*"],
         "js": ["content.js"]
       }
-    ]
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["explanation.html", "explanation.js", "raw.html", "raw.js", "styles.css", "libs/marked.min.js"],
+        "matches": ["<all_urls>"]
+      }
+    ],
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self';"
+    }
   }
   

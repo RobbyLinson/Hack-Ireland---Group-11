@@ -1,0 +1,110 @@
+/* Root variables for consistent theming */
+:root {
+    --primary-purple: #512888;
+    --accent-red: #B11226;
+    --accent-blue: #062A77;
+    --text-off-white: #F2F2F2;
+    --secondary-purple: #9465d1;
+    --background-dark: #2e2e2e;
+    --background-light: #ffffff;
+    --text-dark: #000000;
+}
+
+/* Container for the content including the title */
+#content {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--background-dark);
+    color: var(--text-off-white);
+    border-radius: 8px;
+    overflow-y: auto;
+}
+
+/* Styling for the title inside the content box */
+#title {
+    color: var(--secondary-purple);
+    margin-top: 0;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+/* Styling for the text content */
+#text {
+    line-height: 1.6;
+}
+
+/* Additional styles for other elements within #text */
+#text h2, #text h3, #text h4, #text h5, #text h6 {
+    color: var(--secondary-purple);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+#text p {
+    margin-bottom: 1em;
+}
+
+#text a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+#text a:hover {
+    text-decoration: underline;
+}
+
+#text ul, #text ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+#text li {
+    margin-bottom: 0.5em;
+}
+
+#text pre {
+    background-color: #1e1e1e;
+    color: #dcdcdc;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+#text code {
+    background-color: #1e1e1e;
+    color: #dcdcdc;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+#text blockquote {
+    border-left: 4px solid var(--secondary-purple);
+    padding-left: 10px;
+    margin-left: 0;
+    color: #ccc;
+    font-style: italic;
+    background-color: #3e3e3e;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#text table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+#text th, #text td {
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: left;
+}
+
+#text th {
+    background-color: var(--secondary-purple);
+}
+
+#text tr:nth-child(even) {
+    background-color: #3e3e3e;
+}

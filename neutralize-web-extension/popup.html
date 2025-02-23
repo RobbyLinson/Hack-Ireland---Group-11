@@ -1,28 +1,33 @@
-<!-- popup.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Bias Analysis</title>
-    <link rel="stylesheet" type="text/css" href="popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h2>Bias Analysis Results</h2>
-    <div class="bias-container">
-        <div class="bias-label">Center: <span id="center-score">0%</span></div>
-        <div class="progress-bar">
-            <div id="center-bar" class="progress-fill center"></div>
-        </div>
+    <h1>Neutralizer</h1>
+    <div class="button-container">
+        <button id="button1">More Info</button>
+        <button id="button2">View Raw</button>
     </div>
+    <h3>Bias Analysis</h3>
     <div class="bias-container">
         <div class="bias-label">Left: <span id="left-score">0%</span></div>
         <div class="progress-bar">
-            <div id="left-bar" class="progress-fill left"></div>
+            <div id="left-bar" class="progress-fill"></div>
+        </div>
+    </div>
+    <div class="bias-container">
+        <div class="bias-label">Center: <span id="center-score">0%</span></div>
+        <div class="progress-bar">
+            <div id="center-bar" class="progress-fill"></div>
         </div>
     </div>
     <div class="bias-container">
         <div class="bias-label">Right: <span id="right-score">0%</span></div>
         <div class="progress-bar">
-            <div id="right-bar" class="progress-fill right"></div>
+            <div id="right-bar" class="progress-fill"></div>
         </div>
     </div>
     <script src="popup.js"></script>

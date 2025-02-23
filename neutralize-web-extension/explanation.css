@@ -1,0 +1,104 @@
+/* explanation.css */
+
+/* Root variables for consistent theming */
+:root {
+    --primary-purple: #512888;
+    --accent-red: #B11226;
+    --accent-blue: #062A77;
+    --text-off-white: #F2F2F2;
+    --secondary-purple: #9465d1;
+    --background-dark: #2e2e2e;
+    --background-light: #ffffff;
+    --text-dark: #000000;
+}
+
+/* Container for the explanation content */
+#content {
+    max-width: 600px; /* Adjusts the width for better readability */
+    margin: 0 auto; /* Centers the content */
+    padding: 20px;
+    background-color: var(--background-dark);
+    color: var(--text-off-white);
+    border-radius: 8px;
+    overflow-y: auto;
+}
+
+/* Typography styles */
+#content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+    color: var(--secondary-purple);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+#content p {
+    line-height: 1.6;
+    margin-bottom: 1em;
+}
+
+#content a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+#content a:hover {
+    text-decoration: underline;
+}
+
+/* List styles */
+#content ul, #content ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+#content li {
+    margin-bottom: 0.5em;
+}
+
+/* Code block styles */
+#content pre {
+    background-color: #1e1e1e;
+    color: #dcdcdc;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+#content code {
+    background-color: #1e1e1e;
+    color: #dcdcdc;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Blockquote styles */
+#content blockquote {
+    border-left: 4px solid var(--secondary-purple);
+    padding-left: 10px;
+    margin-left: 0;
+    color: #ccc;
+    font-style: italic;
+    background-color: #3e3e3e;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Table styles */
+#content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+#content th, #content td {
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: left;
+}
+
+#content th {
+    background-color: var(--secondary-purple);
+}
+
+#content tr:nth-child(even) {
+    background-color: #3e3e3e;
+}
