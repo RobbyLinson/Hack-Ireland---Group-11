@@ -121,6 +121,9 @@ def article_finder():
     
     sentiment_data = nlp_response.json()
     article_sentiment = sentiment_processor(sentiment_data['bias_analysis'])
+    print("######################################")
+    print(f"OG ARTICAL SENTIMENT: {article_sentiment}")
+    print("######################################")
     
     keywords = keyword_finder(title)
     matching_articles = search_articles(keywords, 5)
@@ -143,16 +146,25 @@ def article_finder():
         
         article_sentiment_data = nlp_response.json()
         opposing_sentiment = sentiment_processor(article_sentiment_data['bias_analysis'])
+        print()
+        print(f"Article title: {article_url['title']}")
+        print(f"Article sentiment: {opposing_sentiment}")
+        print()
         
         if article_sentiment != opposing_sentiment:
-            print(f"Opposing sentiment found for {article_url['url']}")
+            print(f"Opposing sentiment found for {article_url['title']}")
             opposing_articles["url"].append(article_url['url'])
             opposing_articles["Score"].append(article_sentiment_data["bias_analysis"][opposing_sentiment])
             opposing_articles["Lean"].append(opposing_sentiment)
         else:
-            print(f"Oppsing sentmimment not found for {article_url['url']}")
+            print(f"Oppsing sentmimment not found for {article_url['title']}")
     
     df = pd.DataFrame(opposing_articles).sort_values(by="Score", ascending=False).reset_index(drop=True)
+
+    print()
+    print(df)
+    print()
+
     best_match = df.iloc[0].to_dict() if not df.empty else {"emergency_url":"https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"}
     print("Completed analysis.")
     return jsonify({"message": "Success", "details": best_match}), 200
