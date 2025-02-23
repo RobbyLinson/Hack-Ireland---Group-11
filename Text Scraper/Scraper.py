@@ -175,6 +175,40 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
     for keyword in keywords:
 
         print(f"Searching articles for: {keyword}")
+        articles = search_article(keyword, api_key)
+
+        for article in articles:
+            url = article.get("url")
+            if url:
+
+                # Making json dict
+                article_search_payload = {"url": url}
+
+                # Sending the url to scraper
+                scrape_response = requests.post(scrape_endpoint, json=article_search_payload)
+                if scrape_response.status_code == 200:
+
+                    print(f"Searched article title: {scrape_response.json()['title']}")
+
+                    nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
+
+                    if nlp_response.status_code == 200:
+
+                        nlp_sentiment = nlp_response.json()
+                        opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
+
+                    else:
+                        print(f"NLP API request error: {nlp_response.status_code}")
+
+                else:
+                    print(f"Scraping request error: {scrape_response.status_code}")
+
+
+                print()
+
+                if current_article_sentiment != opp_article_sentiment:
+                    print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
+
 
 
     return jsonify({"message": "Success", "url": original_article_url}), 200
