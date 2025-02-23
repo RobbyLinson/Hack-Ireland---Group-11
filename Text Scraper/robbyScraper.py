@@ -75,12 +75,13 @@ def extract_keywords(title):
     return keywords
 
 # Function to perform a search and retrieve article URLs
-def search_articles(keywords, max_articles=100):
+def search_articles(keywords, max_articles=10):
     query = '+'.join(keywords)
     search_url = f"https://www.bing.com/search?q={query}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
     }
+    
     print(f"Searching for articles with query: {query}")
     response = fetch_webpage(search_url)
     if not response:
@@ -88,21 +89,36 @@ def search_articles(keywords, max_articles=100):
         return []
 
     soup = BeautifulSoup(response, "html.parser")
-
-    # print(soup.prettify())
-
     search_results = soup.find_all('a', href=True)
+
+    # Extracting article URLs
     article_urls = []
+    valid_count = 0  # Track number of valid URLs collected
+    ignored_count = 0  # Track ignored links
+
     for result in search_results:
         href = result['href']
-        if "/url?q=" in href:
-            url = href.split("/url?q=")[1].split("&")[0]
-            if 'webcache.googleusercontent.com' not in url:
-                article_urls.append(url)
-                if len(article_urls) >= max_articles:
-                    break
-    print(f"Found {len(article_urls)} articles.")
+        
+        # Ignore unnecessary Bing-specific links
+        if not href.startswith("http") or "bing.com" in href or "webcache.googleusercontent.com" in href:
+            ignored_count += 1
+            continue
+        
+        # Start collecting URLs after ignoring the first 30
+        if ignored_count < 30:
+            ignored_count += 1
+            continue
+        
+        article_urls.append(href)
+        valid_count += 1
+        
+        if valid_count >= max_articles:
+            break
+    
+    print(f"Extracted {len(article_urls)} relevant article URLs:")
+    print(article_urls)
     return article_urls
+
 
 # API endpoint to find related articles
 @app.route("/article_finder", methods=["POST"])
