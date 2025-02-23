@@ -129,15 +129,41 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
             print(f"Error fetching news for keyword '{keyword}':", response.status_code)
             return []
 
+    ####################### Endpoints #####################
+    scrape_endpoint = "http://localhost:5000/scrape"
+    nlp_endpoint = "https://driven-gnu-ample.ngrok-free.app/api/analyze/"
+    
+    # Looking for current article url
     data = request.get_json()
-    url = data.get("url")
-    if not url:
+    original_article_url = data.get("url")
+    if not original_article_url:
         return jsonify({"error": "No URL provided"}), 400
 
-    print(f"Processing URL: {url}")
-    # Further processing can be added here
+    print(f"Processing URL: {original_article_url}")
+    
+    payload = {"url": original_article_url}
 
-    return jsonify({"message": "Success", "url": url}), 200
+    # Further processing can be added here
+    og_scrape_response = requests.post(scrape_endpoint, json=payload)
+    if og_scrape_response.status_code == 200:
+
+        og_scrape_payload = og_scrape_response.json()
+        og_sentiment_response = requests.post(nlp_endpoint, json=og_scrape_payload)
+
+        if og_sentiment_response.status_code == 200:
+
+            og_sentiment_payload = og_sentiment_response.json()
+
+    else:
+        print("ERROR")
+
+    current_article_title_raw = find_article_title(og_scrape_payload)
+    print(f"############ {current_article_title_raw} ############")
+    current_article_sentiment = sentiment_processor(og_sentiment_payload)
+    print(f"$$$$$$$$$$$$ {current_article_sentiment} $$$$$$$$$$$$")
+
+
+    return jsonify({"message": "Success", "url": original_article_url}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
