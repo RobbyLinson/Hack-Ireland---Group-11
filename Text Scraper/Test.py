@@ -133,6 +133,7 @@ def article_finder():
 
     for article_url in matching_articles:
         print(f"Processing article: {article_url['title']}")
+        print(f"Article text: {article_url['text']}")
         scrape_response = requests.post("http://localhost:5000/scrape", json={"url": article_url['url']})
         if scrape_response.status_code != 200:
             print(f"Failed to scrape: {article_url['title']}")
