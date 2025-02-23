@@ -81,15 +81,34 @@ def SearchArticle(keyword, api_key):
 		return []
 	
 # Main function
-def NewsArticleFinder(api_key, stopwords, scraped_payload, sentiment_payload):
+def NewsArticleFinder(api_key, stopwords, scraped_payload, sentiment_payload, og_article_url):
     
     # Important endpoints to access our tools
     scrape_endpoint = "http://localhost:5000/scrape"
     nlp_endpoint = "https://driven-gnu-ample.ngrok-free.app/api/analyze/"
+    og_article_url = "https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"
+
+    # Scraping the original article
+    payload_thing = {"url": og_article_url}
+    print("Before thing")
+    og_scrape_response = requests.post(scrape_endpoint, json=payload_thing)
+    if og_scrape_response.status_code == 200:
+
+        og_scrape_payload = og_scrape_response.json()        
+        og_sentiment_response = requests.post(nlp_endpoint, json=og_scrape_payload)
+
+        if og_sentiment_response.status_code == 200:
+             
+            og_sentiment_payload = og_sentiment_response.json()
+    else:
+        print("ERORR")
 
     # Extracting the sentiment of our current article
-    current_article_sentiment = SentimentProcessor(sentiment_payload)
-    current_article_title_raw = FindArticleTitle(scraped_payload)
+    current_article_title_raw = FindArticleTitle(og_scrape_payload)
+    print("#############")
+    print(current_article_title_raw)
+    print("################")
+    current_article_sentiment = SentimentProcessor(og_sentiment_payload)
 
     # Printing the article stuff
     print(f"Current article sentiment: {current_article_sentiment}")
@@ -209,8 +228,10 @@ print("AFTER RUNNING FLASK THREAD")
 # print()
 # print(response.json()["title"])
 
-print("STARTING ARTICLE SEARCH")	
-articles, exp_dic = NewsArticleFinder(API_KEY, stopwords, scraped_payload, eg_sentiment_payload)
+og_url = "https://www.foxnews.com/world/israel-delays-palestinian-prisoner-release-hamas-humiliating-treatment-hostages-netanyahu-says"
+
+print("STARTING ARTICLE SEARCH")
+articles, exp_dic = NewsArticleFinder(API_KEY, stopwords, scraped_payload, eg_sentiment_payload, og_url)
 print("DONE ARTICLE SEARCH")
 
 print(f"Number of articles: {len(articles)}")
@@ -227,6 +248,6 @@ x = df_sorted.iloc[0].to_dict()
 
 
 
-###### HHHHOLY GRAIL #######
+###### output #######
 x
 # TODO Send this back to chrome extension
