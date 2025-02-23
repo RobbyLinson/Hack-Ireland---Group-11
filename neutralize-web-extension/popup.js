@@ -133,7 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-document.getElementById("login-btn").addEventListener("click", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    chrome.storage.local.get(["token", "username"], (data) => {
+      if (data.username) {
+        document.getElementById("welcome-message").textContent = `Hi, ${data.username}`;
+      }
+    });
+  });
+  
+  document.getElementById("login-btn").addEventListener("click", async () => {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     
@@ -154,16 +162,17 @@ document.getElementById("login-btn").addEventListener("click", async () => {
       let data = await response.json();
       
       if (data.access_token) {
-        chrome.storage.local.set({ token: data.access_token, username: username });
-        document.getElementById("error-message").textContent = "";
-        document.getElementById("welcome-message").textContent = `Hi, ${username}`;
+        chrome.storage.local.set({ token: data.access_token, username: username }, () => {
+          document.getElementById("error-message").textContent = "";
+          document.getElementById("welcome-message").textContent = `Hi, ${username}`;
+        });
       } else {
         document.getElementById("error-message").textContent = data.error;
       }
     } catch (error) {
       document.getElementById("error-message").textContent = "Login failed";
     }
-  });
+  });  
   
   
 
