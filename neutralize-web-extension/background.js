@@ -1,62 +1,72 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "sendURL") {
-        fetch("http://127.0.0.1:5000/scrape", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ url: message.url })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+        // Store the URL in local storage
+        chrome.storage.local.set({ url: message.url }, () => {
+            if (chrome.runtime.lastError) {
+                console.error("Error setting URL:", chrome.runtime.lastError);
+                return;
             }
-            return response.json(); // Parse the JSON from the response
-        })
-        .then(data => {
-            console.log("Scraped Data:", data);
+            console.log("URL saved:", message.url);
 
-            if (!data.text) {
-                throw new Error("Scraped data does not contain 'text' field.");
-            }
-
-            // Store the scraped text
-            chrome.storage.local.set({ ScrapedText: data }, () => {
-                if (chrome.runtime.lastError) {
-                    console.error("Error setting ScrapedText:", chrome.runtime.lastError);
-                    return;
+            // Proceed with the fetch request to your scraping API
+            fetch("http://127.0.0.1:5000/scrape", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url: message.url })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                console.log("Scraped text saved.");
+                return response.json();
+            })
+            .then(data => {
+                console.log("Scraped Data:", data);
 
-                // Proceed to send the text to the Next API
-                const nextApiUrl = "https://driven-gnu-ample.ngrok-free.app/api/analyze/";
-                console.log("Sending data to Next API at:", nextApiUrl);
-                fetch(nextApiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ text: data.text })
-                })
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! Status: ${res.status}`);
+                if (!data.text) {
+                    throw new Error("Scraped data does not contain 'text' field.");
+                }
+
+                // Store the scraped text
+                chrome.storage.local.set({ ScrapedText: data }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error("Error setting ScrapedText:", chrome.runtime.lastError);
+                        return;
                     }
-                    return res.json();
-                })
-                .then(response => {
-                    console.log("Response from Next API:", response);
-                    chrome.storage.local.set({ biasAnalysis: response }, () => {
-                        if (chrome.runtime.lastError) {
-                            console.error("Error setting biasAnalysis:", chrome.runtime.lastError);
-                            return;
+                    console.log("Scraped text saved.");
+
+                    // Proceed to send the text to the Next API
+                    const nextApiUrl = "https://driven-gnu-ample.ngrok-free.app/api/analyze/";
+                    console.log("Sending data to Next API at:", nextApiUrl);
+                    fetch(nextApiUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ text: data.text })
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! Status: ${res.status}`);
                         }
-                        console.log("Bias analysis data saved.");
-                    });
-                })
-                .catch(error => console.error("Error during Next API fetch:", error));
-            });
-        })
-        .catch(error => console.error("Error during scraping fetch:", error));
+                        return res.json();
+                    })
+                    .then(response => {
+                        console.log("Response from Next API:", response);
+                        chrome.storage.local.set({ biasAnalysis: response }, () => {
+                            if (chrome.runtime.lastError) {
+                                console.error("Error setting biasAnalysis:", chrome.runtime.lastError);
+                                return;
+                            }
+                            console.log("Bias analysis data saved.");
+                        });
+                    })
+                    .catch(error => console.error("Error during Next API fetch:", error));
+                });
+            })
+            .catch(error => console.error("Error during scraping fetch:", error));
+        });
     }
 });
