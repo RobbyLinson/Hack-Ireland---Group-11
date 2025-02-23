@@ -136,8 +136,8 @@ def article_finder():
         scrape_response = requests.post("http://localhost:5000/scrape", json={"url": article_url['url']})
         if scrape_response.status_code != 200:
             print(f"Failed to scrape: {article_url['title']}")
-            print(f"Article text: {scrape_response.json()['text']}")
             continue
+        print(f"Article text: {scrape_response.json()['text']}")
         
         article_data = scrape_response.json()
         nlp_response = requests.post("https://popular-strongly-lemur.ngrok-free.app/api/analyze/", json=article_data)
