@@ -30,16 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.ScrapedText && result.biasAnalysis) {
                 const biasData = result.biasAnalysis;
                 const scrapedText = result.ScrapedText.text; // Correct retrieval
-    
+
                 console.log("All Bias Data: ", biasData);
                 console.log("Claimed Text Data: ", scrapedText); // Fixed usage
                 console.log("Claimed Bias Data: ", biasData.bias_analysis);
-    
+
                 const payload = {
                     text: scrapedText, // Use the correct variable
                     bias_level: biasData.bias_analysis
                 };
-    
+
                 const response = await fetch('https://popular-strongly-lemur.ngrok-free.app/api/gpt_analyze/', {
                     method: 'POST',
                     headers: {
@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify(payload)
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-    
+
                 const responseData = await response.json();
                 console.log('API Response:', responseData);
 
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error during API call:', error);
         }
     });
-    
+
 
 
     document.getElementById("button2").addEventListener("click", async () => {
@@ -101,30 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(response => response.json())
-            .then(data => {
-                // Assuming the API returns a JSON object with a 'neutralized_url' field
-                console.log("Button Data: ", data.details)
-                if (data.details) {
-                    // Update the button's href attribute
-                    button.href = "https://" + data.details;
-                    // Update button appearance
-                    button.classList.remove('loading');
-                    button.classList.add('active');
-                    button.textContent = "Neutralize Me";
-                } else {
-                    // Handle case where 'neutralized_url' is not present in the response
-                    button.textContent = "Error: Invalid response";
+                .then(response => response.json())
+                .then(data => {
+                    // Assuming the API returns a JSON object with a 'neutralized_url' field
+                    console.log("Button Data: ", data.details)
+                    if (data.details) {
+                        // Update the button's href attribute
+                        button.href = "https://" + data.details;
+                        // Update button appearance
+                        button.classList.remove('loading');
+                        button.classList.add('active');
+                        button.textContent = "Neutralize Me";
+                    } else {
+                        // Handle case where 'neutralized_url' is not present in the response
+                        button.textContent = "Error: Invalid response";
+                        button.classList.remove('loading');
+                        button.classList.add('error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.textContent = "Error: Request failed";
                     button.classList.remove('loading');
                     button.classList.add('error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                button.textContent = "Error: Request failed";
-                button.classList.remove('loading');
-                button.classList.add('error');
-            });
+                });
         } else {
             // URL is not available
             button.textContent = "Loading...";
@@ -132,6 +132,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", async () => {
+    chrome.storage.local.get(["token", "username"], (data) => {
+        if (data.username) {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("user-section").style.display = "block";
+            document.getElementById("welcome-message").textContent = `Hi, ${data.username}`;
+        } else {
+            document.getElementById("login-section").style.display = "block";
+            document.getElementById("user-section").style.display = "none";
+        }
+    });
+});
+
+document.getElementById("login-btn").addEventListener("click", async () => {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+        document.getElementById("error-message").textContent = "All fields are required";
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
+
+    try {
+        let response = await fetch("http://localhost:8000/api/login", {
+            method: "POST",
+            body: formData,
+        });
+        let data = await response.json();
+
+        if (data.access_token) {
+            chrome.storage.local.set({ token: data.access_token, username: username }, () => {
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("user-section").style.display = "block";
+                document.getElementById("welcome-message").textContent = `Hi, ${username}`;
+            });
+        } else {
+            document.getElementById("error-message").textContent = data.error;
+        }
+    } catch (error) {
+        document.getElementById("error-message").textContent = "Login failed";
+    }
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+    chrome.storage.local.remove(["token", "username"], () => {
+        document.getElementById("login-section").style.display = "block";
+        document.getElementById("user-section").style.display = "none";
+    });
+});
+
+
+
 
 function updatePopupContent(biasData) {
     // Helper function to validate and retrieve property values
