@@ -8,6 +8,8 @@ import re
 import nltk
 from nltk.corpus import stopwords
 import pandas as pd
+from GoogleNews import GoogleNews
+from newspaper import Article
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -15,6 +17,7 @@ CORS(app)
 
 # Download stopwords
 nltk.download('stopwords')
+new_key = "ada52c3e075747aa88ba0c5cca40d2da"
 
 def fetch_webpage(url):
     headers = {
@@ -130,6 +133,20 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
             print(f"Error fetching news for keyword '{keyword}':", response.status_code)
             return []
 
+    # Keyword search
+    def search_articles2(keywords):
+        all_results = []
+        for kw in keywords:
+            googlenews = GoogleNews()
+            googlenews.search(kw)
+            results = googlenews.result()
+            # Optionally, tag each result with its query
+            for res in results:
+                res['query'] = kw
+            all_results.extend(results)
+        return df["link"]
+        
+
     ####################### Endpoints #####################
     scrape_endpoint = "http://localhost:5000/scrape"
     nlp_endpoint = "https://popular-strongly-lemur.ngrok-free.app/api/analyze/"
@@ -173,50 +190,86 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
     print(f"Isolated keywords from title: {keywords}")
     print()
 
-    for keyword in keywords:
+    matching_articles = search_articles2(keywords)
+    
+    for article_url in matching_articles:
 
-        print(f"Searching articles for: {keyword}")
-        articles = search_article(keyword, api_key)
+        payload = {"url": article_url}
+        scrape_response = requests.post(scrape_endpoint, json=payload)
+        if scrape_response.status_code == 200:
 
-        for article in articles:
-            url = article.get("url")
-            if url:
+            print(f"Searched article title: {scrape_response.json()['title']}")
 
-                # Making json dict
-                article_search_payload = {"url": url}
+            nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
 
-                # Sending the url to scraper
-                scrape_response = requests.post(scrape_endpoint, json=article_search_payload)
-                if scrape_response.status_code == 200:
+            if nlp_response.status_code == 200:
 
-                    print(f"Searched article title: {scrape_response.json()['title']}")
+                nlp_sentiment = nlp_response.json()
+                opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
 
-                    nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
+            else:
+                print(f"NLP API request error: {nlp_response.status_code}")
+        else:
+            print(f"Scraping request error: {scrape_response.status_code}")
 
-                    if nlp_response.status_code == 200:
+        print()
 
-                        nlp_sentiment = nlp_response.json()
-                        opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
+        if current_article_sentiment != opp_article_sentiment:
+            print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
+            opp_articles.append(article)
+            opp_articles_score["url"].append(url)
+            opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
+            opp_articles_score["Lean"].append(opp_article_sentiment)
 
-                    else:
-                        print(f"NLP API request error: {nlp_response.status_code}")
+    # for keyword in keywords:
 
-                else:
-                    print(f"Scraping request error: {scrape_response.status_code}")
+    #     print(f"Searching articles for: {keyword}")
+    #     articles = search_article(keyword, api_key)
+
+    #     for article in articles:
+    #         url = article.get("url")
+    #         if url:
+
+    #             # Making json dict
+    #             article_search_payload = {"url": url}
+
+    #             # Sending the url to scraper
+    #             scrape_response = requests.post(scrape_endpoint, json=article_search_payload)
+    #             if scrape_response.status_code == 200:
+
+    #                 print(f"Searched article title: {scrape_response.json()['title']}")
+
+    #                 nlp_response = requests.post(nlp_endpoint, json=scrape_response.json())
+
+    #                 if nlp_response.status_code == 200:
+
+    #                     nlp_sentiment = nlp_response.json()
+    #                     opp_article_sentiment = sentiment_processor(nlp_sentiment['bias_analysis'])
+
+    #                 else:
+    #                     print(f"NLP API request error: {nlp_response.status_code}")
+
+    #             else:
+    #                 print(f"Scraping request error: {scrape_response.status_code}")
 
 
-                print()
+    #             print()
 
-                if current_article_sentiment != opp_article_sentiment:
-                    print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
-                    opp_articles.append(article)
-                    opp_articles_score["url"].append(url)
-                    opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
-                    opp_articles_score["Lean"].append(opp_article_sentiment)
+    #             if current_article_sentiment != opp_article_sentiment:
+    #                 print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
+    #                 opp_articles.append(article)
+    #                 opp_articles_score["url"].append(url)
+    #                 opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
+    #                 opp_articles_score["Lean"].append(opp_article_sentiment)
         
     df = pd.DataFrame(opp_articles_score)
     df_sorted = df.sort_values(by="Score", ascending=False).reset_index(drop=True)
     final = df_sorted.iloc[0].to_dict()
+    
+    print("##############################")
+    print(df_sorted)
+    print(final)
+
 
     return jsonify({"message": "Success", "details": final}), 200
 
