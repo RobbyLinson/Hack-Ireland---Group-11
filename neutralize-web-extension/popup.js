@@ -133,6 +133,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.getElementById("login-btn").addEventListener("click", async () => {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    
+    if (!username || !password) {
+      document.getElementById("error-message").textContent = "All fields are required";
+      return;
+    }
+    
+    let formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
+    
+    try {
+      let response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        body: formData,
+      });
+      let data = await response.json();
+      
+      if (data.access_token) {
+        chrome.storage.local.set({ token: data.access_token, username: username });
+        document.getElementById("error-message").textContent = "";
+        document.getElementById("welcome-message").textContent = `Hi, ${username}`;
+      } else {
+        document.getElementById("error-message").textContent = data.error;
+      }
+    } catch (error) {
+      document.getElementById("error-message").textContent = "Login failed";
+    }
+  });
+  
+  
+
 function updatePopupContent(biasData) {
     // Helper function to validate and retrieve property values
     function getValidPercentage(value) {
