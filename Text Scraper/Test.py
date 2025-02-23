@@ -73,18 +73,30 @@ def keyword_finder(title):
     print(f"Extracted keywords: {keywords}")
     return keywords[:-3]  # Exclude last 3 words to focus on main topic
 
-# Function to search for related articles using Google News
-# def search_articles(keywords, max_articles=10):
-#     results = []
-#     for kw in keywords:
-#         print(f"Searching for articles related to: {kw}")
-#         googlenews = GoogleNews()
-#         googlenews.search(kw)
-#         time.sleep(2)
-#         articles = googlenews.result()[:max_articles]  # Limit the results to max_articles
-#         print(f"Found {len(articles)} articles for {kw}")
-#         results.extend([res['link'] for res in articles if 'link' in res])
-#     return results
+def get_direct_url(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "Chrome/90.0.4430.93 Safari/537.36"
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        # If HTTP redirection occurred, response.url will be different
+        if response.url != url:
+            return response.url
+        # Otherwise, check if the page has a meta refresh redirect
+        soup = BeautifulSoup(response.text, "lxml")
+        meta = soup.find("meta", attrs={"http-equiv": re.compile("refresh", re.I)})
+        if meta:
+            content = meta.get("content", "")
+            match = re.search(r'url=(.*)', content, flags=re.IGNORECASE)
+            if match:
+                final_url = match.group(1).strip()
+                return final_url
+    except Exception as e:
+        print(f"Error in get_direct_url: {e}")
+    return url  # Fallback to the original URL if no redirection info is found
+
+
 def search_articles(keywords, max_articles):
 
     query = " ".join(keywords)
@@ -132,33 +144,34 @@ def article_finder():
     opposing_articles = {"url": [], "Score": [], "Lean": []}
 
     for article_url in matching_articles:
-        print(f"Processing article: {article_url['title']}")
-        scrape_response = requests.post("http://localhost:5000/scrape", json={"url": article_url['url']})
+        direct_url = get_direct_url(article_url['url'])
+        print(f"Processing article: {direct_url['title']}")
+        scrape_response = requests.post("http://localhost:5000/scrape", json={"url": direct_url['url']})
         if scrape_response.status_code != 200:
-            print(f"Failed to scrape: {article_url['title']}")
+            print(f"Failed to scrape: {direct_url['title']}")
             continue
         print(f"Article text: {scrape_response.json()['text']}")
         
         article_data = scrape_response.json()
         nlp_response = requests.post("https://popular-strongly-lemur.ngrok-free.app/api/analyze/", json=article_data)
         if nlp_response.status_code != 200:
-            print(f"Failed to analyze sentiment for: {article_url['title']}")
+            print(f"Failed to analyze sentiment for: {direct_url['title']}")
             continue
         
         article_sentiment_data = nlp_response.json()
         opposing_sentiment = sentiment_processor(article_sentiment_data['bias_analysis'])
         print()
-        print(f"Article title: {article_url['title']}")
+        print(f"Article title: {direct_url['title']}")
         print(f"Article sentiment: {opposing_sentiment}")
         print()
         
         if article_sentiment != opposing_sentiment:
-            print(f"Opposing sentiment found for {article_url['title']}")
-            opposing_articles["url"].append(article_url['url'])
+            print(f"Opposing sentiment found for {direct_url['title']}")
+            opposing_articles["url"].append(direct_url['url'])
             opposing_articles["Score"].append(article_sentiment_data["bias_analysis"][opposing_sentiment])
             opposing_articles["Lean"].append(opposing_sentiment)
         else:
-            print(f"Oppsing sentmimment not found for {article_url['title']}")
+            print(f"Oppsing sentmimment not found for {direct_url['title']}")
     
     df = pd.DataFrame(opposing_articles).sort_values(by="Score", ascending=False).reset_index(drop=True)
 
