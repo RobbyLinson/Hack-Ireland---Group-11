@@ -7,6 +7,7 @@ import json
 import re
 import nltk
 from nltk.corpus import stopwords
+import pandas as pd
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -208,10 +209,16 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
 
                 if current_article_sentiment != opp_article_sentiment:
                     print(f"Opposite sentiment found: {current_article_sentiment}, {opp_article_sentiment}")
+                    opp_articles.append(article)
+                    opp_articles_score["url"].append(url)
+                    opp_articles_score["Score"].append(nlp_sentiment["bias_analysis"][opp_article_sentiment])
+                    opp_articles_score["Lean"].append(opp_article_sentiment)
+        
+    df = pd.DataFrame(opp_articles_score)
+    df_sorted = df.sort_values(by="Score", ascending=False).reset_index(drop=True)
+    final = df_sorted.iloc[0].to_dict()
 
-
-
-    return jsonify({"message": "Success", "url": original_article_url}), 200
+    return jsonify({"message": "Success", "details": final}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
