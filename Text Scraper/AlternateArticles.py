@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 import numpy as np
 from Scraper import app
 import pandas as pd
+from flask import Flask, request, jsonify
 
 API_KEY = "69ea4f52545a4750a3c0e49811ffc8d3"
 NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'
@@ -23,6 +24,14 @@ scraped_payload = dict({
     "url": "skibidid.",
     "title": "Donald Trump is a great rolemodel"
 })
+
+scrape_app_2 = Flask(__name__)
+@scrape_app_2.route('/scrape2', methods=["POST"])
+def GetUrl():
+     
+    data = request.get_json()
+    url = data.get("url")
+    print(f"FROM NEW THINGY: {url}")
 
 def FindArticleTitle(json_thing):
     
@@ -201,7 +210,8 @@ print("AFTER RUNNING FLASK THREAD")
 ######################################################### Using stuff                ##############################################################
 
 
-
+if __name__ == "__main__":
+    scrape_app_2.run(debug=True)
 
 
 
