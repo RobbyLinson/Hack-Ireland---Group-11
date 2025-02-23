@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Bias Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
+
 <body>
     <h1><a href="https://neutralise.net" target="_blank" rel="noopener noreferrer">Neutralize</a></h1>
     <div class="button-container">
@@ -30,7 +32,20 @@
             <div id="right-bar" class="progress-fill"></div>
         </div>
     </div>
-    <a id="neutralize-button" class="loading" href="https://neutralise.net" target="_blank" rel="noopener noreferrer">Loading...</a>
+    <a id="neutralize-button" class="loading" href="https://neutralise.net" target="_blank"
+        rel="noopener noreferrer">Loading...</a>
+    <div class="login-container" id="login-section">
+        <h2>Sign In</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button id="login-btn">Login</button>
+        <p id="error-message" class="error"></p>
+    </div>
+    <div class="user-container" id="user-section" style="display: none;">
+        <p id="welcome-message" class="welcome"></p>
+        <button id="logout-btn">Logout</button>
+    </div>
     <script src="popup.js"></script>
 </body>
+
 </html>
