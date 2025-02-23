@@ -6,11 +6,14 @@ import requests
 import json
 import re
 import nltk
-nltk.download('stopwords')
 from nltk.corpus import stopwords
 
+# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+
+# Download stopwords
+nltk.download('stopwords')
 
 def fetch_webpage(url):
     headers = {
@@ -84,69 +87,57 @@ def scrape():
     return jsonify(result)
 
 @app.route("/article_finder", methods=["POST"])
-def ArticleThing(stopwords, api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
-
+def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
     ##################### Mini helper functions ############################
-    def FindArticleTitle(json_thing):
+    def find_article_title(json_thing):
         dic = dict(json_thing)
         title = dic["title"]
-
         return title
     
     # Sentiment processor
-    def SentimentProcessor(dic):
-    
-	    # Returning the side thats highest
+    def sentiment_processor(dic):
+        # Returning the side that's highest
         return max(dic, key=dic.get)
     
     # Finds keywords init
-    def KeywordFinder(article_title, stopwords):
-    
-	    # Extracting stop words
-        stopwords = set(stopwords.words('english'))
-    
-	    # Tokenizing the article title
+    def keyword_finder(article_title):
+        # Extracting stop words
+        stop_words = set(stopwords.words('english'))
+        # Tokenizing the article title
         article_tokens = article_title.split()
-    
-	    # Filtering stop words
-        keywords = [word for word in article_tokens if word.lower() not in stopwords]
-    
+        # Filtering stop words
+        keywords = [word for word in article_tokens if word.lower() not in stop_words]
         return keywords
     
     # Searching for articles init
-    def SearchArticle(keyword, api_key):
-    
+    def search_article(keyword, api_key):
         url = 'https://newsapi.org/v2/top-headlines'
-	    # api_key = "69ea4f52545a4750a3c0e49811ffc8d3"
-
-	    # Define parameters for the request (e.g., get US headlines)	
+        # Define parameters for the request (e.g., get US headlines)    
         params = {
-    	    'qInTitle': keyword,
+            'qInTitle': keyword,
             'q': keyword,
-    	    'country': 'us',
-    	    'pageSize': 10,  # Limit the number of articles returned
-    	    'apiKey': api_key
-	        }
-
-	    # Make the GET request to the News API
+            'country': 'us',
+            'pageSize': 10,  # Limit the number of articles returned
+            'apiKey': api_key
+        }
+        # Make the GET request to the News API
         response = requests.get(url, params=params)
-	
         if response.status_code == 200:
             data = response.json()
             return data.get('articles', [])
         else:
             print(f"Error fetching news for keyword '{keyword}':", response.status_code)
             return []
-        
-    
 
     data = request.get_json()
     url = data.get("url")
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
 
-    print(f"############# {url}")
+    print(f"Processing URL: {url}")
+    # Further processing can be added here
 
-
-
+    return jsonify({"message": "Success", "url": url}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
