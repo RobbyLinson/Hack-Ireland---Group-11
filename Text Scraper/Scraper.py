@@ -156,11 +156,25 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
 
     else:
         print("ERROR")
-
+    
+    # Extracting key info
     current_article_title_raw = find_article_title(og_scrape_payload)
+    current_article_sentiment = sentiment_processor(og_sentiment_payload['bias_analysis'])
     print(f"############ {current_article_title_raw} ############")
-    current_article_sentiment = sentiment_processor(og_sentiment_payload)
     print(f"$$$$$$$$$$$$ {current_article_sentiment} $$$$$$$$$$$$")
+
+    # Storage
+    opp_articles = []
+    opp_articles_score = dict({"url":[], "Score":[], "Lean":[]})
+
+    # Isolating the keywords
+    keywords = keyword_finder(current_article_title_raw)
+    print(f"Isolated keywords from title: {keywords}")
+    print()
+
+    for keyword in keywords:
+
+        print(f"Searching articles for: {keyword}")
 
 
     return jsonify({"message": "Success", "url": original_article_url}), 200
