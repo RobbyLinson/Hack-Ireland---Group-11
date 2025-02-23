@@ -81,12 +81,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chrome.storage.local.get(['url'], (result) => {
         const button = document.getElementById('neutralize-button');
-        console.log("Current Url According to Button", result.url)
+        console.log("Current URL According to Button:", result.url);
+
         if (result.url) {
-            button.classList.remove('loading');
-            button.classList.add('active');
-            button.textContent = "Neutralize Me";
+            // URL is available, proceed with API call
+            button.textContent = "Processing...";
+            button.classList.add('loading');
+
+            // Prepare the payload
+            const payload = {
+                url: result.url
+            };
+
+            // Send POST request to the Flask API
+            fetch('http://127.0.0.1:5000/article_finder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the API returns a JSON object with a 'neutralized_url' field
+                if (data.neutralized_url) {
+                    // Update the button's href attribute
+                    button.href = data.neutralized_url;
+                    // Update button appearance
+                    button.classList.remove('loading');
+                    button.classList.add('active');
+                    button.textContent = "Neutralize Me";
+                } else {
+                    // Handle case where 'neutralized_url' is not present in the response
+                    button.textContent = "Error: Invalid response";
+                    button.classList.remove('loading');
+                    button.classList.add('error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.textContent = "Error: Request failed";
+                button.classList.remove('loading');
+                button.classList.add('error');
+            });
         } else {
+            // URL is not available
             button.textContent = "Loading...";
             button.classList.add('loading');
         }
