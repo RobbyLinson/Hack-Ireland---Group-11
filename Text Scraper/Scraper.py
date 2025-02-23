@@ -131,7 +131,7 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
 
     ####################### Endpoints #####################
     scrape_endpoint = "http://localhost:5000/scrape"
-    nlp_endpoint = "https://driven-gnu-ample.ngrok-free.app/api/analyze/"
+    nlp_endpoint = "https://popular-strongly-lemur.ngrok-free.app/api/analyze/"
     
     # Looking for current article url
     data = request.get_json()
