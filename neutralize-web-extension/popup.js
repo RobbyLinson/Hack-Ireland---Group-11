@@ -104,9 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 // Assuming the API returns a JSON object with a 'neutralized_url' field
-                if (data.neutralized_url) {
+                console.log("Button Data: ", data.details)
+                if (data.details) {
                     // Update the button's href attribute
-                    button.href = data.neutralized_url;
+                    button.href = "https://" + data.details;
                     // Update button appearance
                     button.classList.remove('loading');
                     button.classList.add('active');
@@ -131,8 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-
 
 function updatePopupContent(biasData) {
     // Helper function to validate and retrieve property values

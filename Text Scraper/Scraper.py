@@ -111,6 +111,7 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
         article_tokens = article_title.split()
         # Filtering stop words
         keywords = [word for word in article_tokens if word.lower() not in stop_words]
+        keywords = keywords[:-3]
         return keywords
     
     # Searching for articles init
@@ -119,13 +120,13 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
         # Define parameters for the request (e.g., get US headlines)    
         params = {
             'qInTitle': keyword,
-            'q': keyword,
-            'country': 'us',
             'pageSize': 10,  # Limit the number of articles returned
             'apiKey': api_key
         }
         # Make the GET request to the News API
+        
         response = requests.get(url, params=params)
+        time.sleep(0.5)
         if response.status_code == 200:
             data = response.json()
             return data.get('articles', [])
