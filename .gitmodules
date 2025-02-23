@@ -1,0 +1,6 @@
+[submodule "neutralize-backend"]
+	path = neutralize-backend
+	url = https://github.com/Eric-xin/neutralize_backend
+[submodule "neutralize-web"]
+	path = neutralize-web
+	url = https://github.com/Eric-xin/neutralise-web.git
