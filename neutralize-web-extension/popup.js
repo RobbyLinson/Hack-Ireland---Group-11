@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bias_level: biasData.bias_analysis
                 };
     
-                const response = await fetch('https://driven-gnu-ample.ngrok-free.app/api/gpt_analyze/', {
+                const response = await fetch('https://popular-strongly-lemur.ngrok-free.app/api/gpt_analyze/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

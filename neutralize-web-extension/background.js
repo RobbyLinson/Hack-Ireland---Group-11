@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     console.log("Scraped text saved.");
 
                     // Proceed to send the text to the Next API
-                    const nextApiUrl = "https://driven-gnu-ample.ngrok-free.app/api/analyze/";
+                    const nextApiUrl = "https://popular-strongly-lemur.ngrok-free.app/api/analyze/";
                     console.log("Sending data to Next API at:", nextApiUrl);
                     fetch(nextApiUrl, {
                         method: "POST",
