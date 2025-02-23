@@ -78,7 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Button 2 Pressed");
         chrome.tabs.create({ url: chrome.runtime.getURL('raw.html') });
     });
-    
+
+    chrome.storage.local.get(['url'], (result) => {
+        const button = document.getElementById('neutralize-button');
+        console.log("Current Url According to Button", result.url)
+        if (result.url) {
+            button.classList.remove('loading');
+            button.classList.add('active');
+            button.textContent = "Neutralize Me";
+        } else {
+            button.textContent = "Loading...";
+            button.classList.add('loading');
+        }
+    });
 });
 
 

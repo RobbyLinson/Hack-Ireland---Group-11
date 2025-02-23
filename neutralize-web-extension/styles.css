@@ -72,3 +72,36 @@ h2 {
     background-color: var(--secondary-purple);
     color: var(--text-off-white);
 }
+
+/* New button styling */
+#neutralize-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary-purple);
+    color: var(--text-off-white);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#neutralize-button.loading {
+    background-color: var(--primary-purple);
+    cursor: wait;
+}
+
+#neutralize-button.active {
+    background: linear-gradient(90deg, var(--accent-red), var(--secondary-purple), var(--accent-blue));
+    background-size: 400% 400%;
+    animation: gradientAnimation 3s infinite linear;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
