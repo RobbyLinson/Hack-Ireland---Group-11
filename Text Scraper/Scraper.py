@@ -114,25 +114,24 @@ def article_finder(api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
         keywords = keywords[:-3]
         return keywords
     
-    # Searching for articles init
-    def search_article(keyword, api_key):
-        url = 'https://newsapi.org/v2/top-headlines'
-        # Define parameters for the request (e.g., get US headlines)    
-        params = {
-            'qInTitle': keyword,
-            'pageSize': 10,  # Limit the number of articles returned
-            'apiKey': api_key
-        }
-        # Make the GET request to the News API
+    # # Searching for articles init
+    # def search_article(keyword, api_key):
+    #     url = 'https://newsapi.org/v2/top-headlines'
+    #     # Define parameters for the request (e.g., get US headlines)    
+    #     params = {
+    #         'qInTitle': keyword,
+    #         'pageSize': 10,  # Limit the number of articles returned
+    #         'apiKey': api_key
+    #     }
+    #     # Make the GET request to the News API
         
-        response = requests.get(url, params=params)
-        time.sleep(0.5)
-        if response.status_code == 200:
-            data = response.json()
-            return data.get('articles', [])
-        else:
-            print(f"Error fetching news for keyword '{keyword}':", response.status_code)
-            return []
+    #     response = requests.get(url, params=params)
+    #     if response.status_code == 200:
+    #         data = response.json()
+    #         return data.get('articles', [])
+    #     else:
+    #         print(f"Error fetching news for keyword '{keyword}':", response.status_code)
+    #         return []
 
     # Keyword search
     def search_articles2(keywords):
