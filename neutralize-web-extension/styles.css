@@ -15,6 +15,10 @@ body {
     background-color: var(--primary-purple);
     color: var(--text-off-white);
 }
+h1 a {
+    text-decoration: none; /* Removes the underline */
+    color: inherit; /* Inherits the color from the parent h1 */
+}
 
 h2 {
     margin-bottom: 20px;
