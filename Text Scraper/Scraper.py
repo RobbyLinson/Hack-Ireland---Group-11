@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import re
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
 
 app = Flask(__name__)
 CORS(app)
@@ -79,6 +82,71 @@ def scrape():
 
     # Return the result as a JSON response
     return jsonify(result)
+
+@app.route("/article_finder", methods=["POST"])
+def ArticleThing(stopwords, api_key="69ea4f52545a4750a3c0e49811ffc8d3"):
+
+    ##################### Mini helper functions ############################
+    def FindArticleTitle(json_thing):
+        dic = dict(json_thing)
+        title = dic["title"]
+
+        return title
+    
+    # Sentiment processor
+    def SentimentProcessor(dic):
+    
+	    # Returning the side thats highest
+        return max(dic, key=dic.get)
+    
+    # Finds keywords init
+    def KeywordFinder(article_title, stopwords):
+    
+	    # Extracting stop words
+        stopwords = set(stopwords.words('english'))
+    
+	    # Tokenizing the article title
+        article_tokens = article_title.split()
+    
+	    # Filtering stop words
+        keywords = [word for word in article_tokens if word.lower() not in stopwords]
+    
+        return keywords
+    
+    # Searching for articles init
+    def SearchArticle(keyword, api_key):
+    
+        url = 'https://newsapi.org/v2/top-headlines'
+	    # api_key = "69ea4f52545a4750a3c0e49811ffc8d3"
+
+	    # Define parameters for the request (e.g., get US headlines)	
+        params = {
+    	    'qInTitle': keyword,
+            'q': keyword,
+    	    'country': 'us',
+    	    'pageSize': 10,  # Limit the number of articles returned
+    	    'apiKey': api_key
+	        }
+
+	    # Make the GET request to the News API
+        response = requests.get(url, params=params)
+	
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('articles', [])
+        else:
+            print(f"Error fetching news for keyword '{keyword}':", response.status_code)
+            return []
+        
+    
+
+    data = request.get_json()
+    url = data.get("url")
+
+    print(f"############# {url}")
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
